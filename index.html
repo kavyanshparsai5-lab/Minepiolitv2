@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0c">
+  <title>MinePilot AI</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="gate" class="gate" hidden>
+    <form id="gateForm" class="gate-box" autocomplete="off">
+      <div class="brand"><img src="icon.svg" alt="" width="28" height="28"><span>MinePilot <em>AI</em></span></div>
+      <p class="muted">This dashboard is protected. Enter the access key shown in the terminal where MinePilot is running.</p>
+      <label class="field"><span>Access key</span><input id="gateKey" type="password" required autocomplete="current-password"></label>
+      <p id="gateErr" class="err" role="alert"></p>
+      <button class="btn primary" type="submit">Open dashboard</button>
+    </form>
+  </div>
+
+  <div id="app" class="app" hidden>
+    <header class="top">
+      <div class="brand"><img src="icon.svg" alt="" width="24" height="24"><span>MinePilot <em>AI</em></span></div>
+      <div class="top-right">
+        <span id="pill" class="pill" data-state="idle"><i></i><b id="pillText">Offline</b></span>
+        <button id="openSettings" class="icon-btn" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.5 7.5 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7.5 7.5 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7.5 7.5 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7.5 7.5 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6ZM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z" transform="translate(-1 0)"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <div class="left">
+        <section class="panel a-conn" aria-labelledby="connTitle">
+          <div class="panel-head">
+            <h2 id="connTitle">Connection</h2>
+            <span class="muted small">Java Edition 1.18.1+</span>
+          </div>
+          <div id="connSummary" class="conn-summary" hidden><p id="connSummaryText"></p><button id="btnEdit" class="btn ghost sm" type="button">Edit</button></div>
+          <form id="connForm" autocomplete="off" novalidate>
+            <div id="connFields">
+            <div class="row">
+              <label class="field grow"><span>Server address</span><input id="host" name="host" inputmode="url" placeholder="play.example.net" maxlength="253" autocapitalize="off" spellcheck="false"></label>
+              <label class="field port"><span>Port</span><input id="port" name="port" inputmode="numeric" placeholder="25565" maxlength="5"></label>
+            </div>
+            <label class="field"><span>Bot username</span><input id="username" name="username" placeholder="MinePilot" maxlength="16" autocapitalize="off" spellcheck="false"></label>
+            <details class="adv">
+              <summary>Advanced</summary>
+              <div class="row">
+                <label class="field grow"><span>Version</span><select id="version"><option value="auto">Auto-detect</option></select></label>
+                <label class="field grow"><span>Account</span><select id="auth"><option value="offline">Offline / cracked</option><option value="microsoft">Microsoft account</option></select></label>
+              </div>
+            </details>
+            </div>
+            <p id="connErr" class="err" role="alert"></p>
+            <div class="actions">
+              <button id="btnConnect" class="btn primary" type="submit">Connect</button>
+              <button id="btnReconnect" class="btn" type="button">Reconnect</button>
+              <button id="btnDisconnect" class="btn ghost" type="button">Disconnect</button>
+            </div>
+          </form>
+          <p id="serverLine" class="server-line muted"></p>
+        </section>
+        <section class="panel a-bot" aria-labelledby="statusTitle">
+          <div class="panel-head"><h2 id="statusTitle">Bot</h2><span id="taskTag" class="tag" hidden></span></div>
+          <dl id="stats" class="stats"></dl>
+          <p id="statsEmpty" class="muted small">Not connected. Status appears here once the bot is in the game.</p>
+        </section>
+        <section class="panel inv-panel a-inv" aria-labelledby="invTitle" data-pane="inventory">
+          <div class="panel-head"><h2 id="invTitle">Inventory</h2><span id="invCount" class="muted small"></span></div>
+          <ul id="inv" class="inv"></ul>
+          <p id="invEmpty" class="muted small">Nothing to show.</p>
+        </section>
+      </div>
+      <div class="right">
+        <nav class="tabs" role="tablist" aria-label="Views">
+          <button role="tab" data-tab="assistant" aria-selected="true">Assistant</button>
+          <button role="tab" data-tab="terminal" aria-selected="false">Terminal</button>
+          <button role="tab" data-tab="inventory" aria-selected="false">Inventory</button>
+        </nav>
+        <section class="panel chat-panel a-chat" data-pane="assistant" aria-labelledby="chatTitle">
+          <div class="panel-head"><h2 id="chatTitle">Assistant</h2><button id="btnStop" class="btn danger sm" type="button" hidden>Stop task</button></div>
+          <div id="chat" class="chat" aria-live="polite"></div>
+          <div class="chips" id="chips">
+            <button type="button" data-cmd="follow me">Follow me</button>
+            <button type="button" data-cmd="collect wood">Collect wood</button>
+            <button type="button" data-cmd="inventory">Inventory</button>
+            <button type="button" data-cmd="status">Status</button>
+            <button type="button" data-cmd="help">Help</button>
+          </div>
+          <form id="cmdForm" class="cmd" autocomplete="off">
+            <input id="cmdInput" placeholder="Tell the bot what to do…" maxlength="256" enterkeyhint="send" aria-label="Command">
+            <button class="btn primary" type="submit" aria-label="Send">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3.4 20.4 21 12 3.4 3.6l-.1 6.5L15 12 3.3 13.9z"/></svg>
+            </button>
+          </form>
+        </section>
+        <section class="panel term-panel a-term" data-pane="terminal" aria-labelledby="termTitle">
+          <div class="panel-head">
+            <h2 id="termTitle">Terminal</h2>
+            <div class="seg small" role="radiogroup" aria-label="Filter">
+              <button type="button" role="radio" data-filter="all" aria-checked="true">All</button>
+              <button type="button" role="radio" data-filter="chat" aria-checked="false">Chat</button>
+              <button type="button" role="radio" data-filter="system" aria-checked="false">System</button>
+            </div>
+          </div>
+          <div id="term" class="term" role="log" aria-live="off"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="authDlg" class="dlg">
+    <form id="authForm" method="dialog" autocomplete="off">
+      <h3 id="authTitle">Server login</h3>
+      <p id="authText" class="muted"></p>
+      <label class="field"><span>Password</span><input id="authPw" type="password" maxlength="64" autocomplete="new-password" required></label>
+      <label class="check"><input id="authRemember" type="checkbox"> Remember on this device for this server</label>
+      <p id="authErr" class="err" role="alert"></p>
+      <div class="actions end">
+        <button id="authCancel" class="btn ghost" type="button">Not now</button>
+        <button class="btn primary" type="submit">Send</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="msaDlg" class="dlg">
+    <div>
+      <h3>Microsoft sign-in</h3>
+      <p class="muted">Open the link, sign in with the Minecraft account and enter this code:</p>
+      <p class="code" id="msaCode"></p>
+      <p><a id="msaLink" href="#" target="_blank" rel="noopener noreferrer"></a></p>
+      <div class="actions end"><button id="msaClose" class="btn" type="button">Done</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="setDlg" class="dlg wide">
+    <form id="setForm" autocomplete="off">
+      <h3>Settings</h3>
+      <label class="field"><span>Your in-game name <small>(used for "follow me" and "come here")</small></span><input id="sOwner" maxlength="16" autocapitalize="off" spellcheck="false" placeholder="Steve"></label>
+      <div class="grid2">
+        <label class="check"><input id="sAutoReconnect" type="checkbox"> Auto-reconnect when the connection drops</label>
+        <label class="field"><span>Reconnect attempts</span><input id="sAttempts" type="number" min="0" max="20"></label>
+      </div>
+      <label class="check"><input id="sAutoEat" type="checkbox"> Auto-eat when food drops to 14 or lower (Java)</label>
+      <label class="check"><input id="sDig" type="checkbox"> Allow breaking blocks while walking to a target</label>
+      <label class="check"><input id="sPlace" type="checkbox"> Allow placing blocks to climb while walking (uses inventory blocks)</label>
+      <fieldset class="ai">
+        <legend>AI helper <small>(optional)</small></legend>
+        <p class="muted small">Plain commands always work without it. When on, text the parser does not understand is sent to an OpenAI-compatible API, which may only pick one of the built-in commands.</p>
+        <label class="check"><input id="sAi" type="checkbox"> Use AI for free-form instructions</label>
+        <label class="field"><span>API base URL</span><input id="sAiUrl" placeholder="https://api.openai.com/v1" autocapitalize="off" spellcheck="false"></label>
+        <div class="grid2">
+          <label class="field"><span>Model</span><input id="sAiModel" placeholder="gpt-4o-mini" autocapitalize="off" spellcheck="false"></label>
+          <label class="field"><span>API key <small id="sKeyState"></small></span><input id="sAiKey" type="password" autocomplete="off" placeholder="sk-…"></label>
+        </div>
+      </fieldset>
+      <p id="setErr" class="err" role="alert"></p>
+      <p id="setOk" class="ok" role="status"></p>
+      <div class="actions spread">
+        <div class="actions">
+          <button id="sForget" class="btn ghost sm" type="button">Forget saved passwords</button>
+          <button id="sLogout" class="btn ghost sm" type="button">Sign out</button>
+        </div>
+        <div class="actions">
+          <button id="setClose" class="btn" type="button">Close</button>
+          <button class="btn primary" type="submit">Save</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
