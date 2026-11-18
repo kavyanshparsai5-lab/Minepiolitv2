@@ -1,0 +1,13 @@
+diff --git a/server/drivers/java.js b/server/drivers/java.js
+index 7eeb757..a675784 100644
+--- a/server/drivers/java.js
++++ b/server/drivers/java.js
+@@ -187,6 +187,8 @@ class JavaDriver extends BaseDriver {
+       this.handleAuthText(message)
+     })
+ 
++    try { require('../mathchat').attach(this, bot) } catch (e) { this.log('warn', `Math helper not started: ${e.message}`) } // optional maths answers in chat
++
+     bot.on('title', (text) => {
+       const t = chatToText(text, bot.registry)
+       if (t && /\/(login|register)\b|password/i.test(t)) { this.log('chat', `[title] ${t}`, 'server'); this.handleAuthText(t) }
